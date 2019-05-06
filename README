@@ -1,0 +1,45 @@
+=================
+JIANU Maria 321CB
+Tema 1 PC
+=================
+
+Am ales sa implementez tema folosind protocolul Selective Repeat.
+Fiecare mesaj are urmatoare structura (m.payload):
+
+numar de secventa (4 octeti) + datele (1395 octeti) + check sum (1 octet)
+
+SENDER
+
+-> Am un buffer in care retin mesajele trimise pentru care nu am primit inca
+ack.
+-> Un vector de flag-uri (isAcked) in care notez daca fiecare mesaj a primit
+sau nu ack.
+-> Incep prin a calcula dimensiunea ferestrei, apoi trimit window mesaje.
+Mesajul cu numarul de secventa 0 are ca lungime dimnsiunea ferestrei, iar
+mesajul cu numarul de secventa 1 are ca lungime numarul total de frame-uri.
+Receiverul are nevoie de aceste informatii pentru a stii cand sa se inchida.
+-> Apoi, in bucla infinita, senderul primeste mesajul cu timeout-ul DELAY + 5.
+Daca nu a primit ack in acest timeout, va retrimite mesajul neconfirmat.
+-> Daca am primit ack, si e ack-ul asteptat citestc urmatorii 1395 de bytes
+din fisier si trimit urmatorul mesaj. 
+-> Daca mai este loc in fereastra (mai sunt cadre neconfirmate), procesul continua.
+-> Sender se termina cand au fost trimise si confirmate toate cadrele.
+
+RECEIVER
+
+-> Avem un buffer de size = window si acelasi vector de flaguri din sender.
+-> Receiverul poate primii 3 tipuri de cadre:
+1. cadrul pe care il voia (next frame), atunci ia datele, le scrie in fisier si
+trimit ack pentru ele.
+2. daca nu e cadrul asteptat, dar nu e nici corupt,il salvez si trimit ack. 
+(il pun in buffer si il scriu mai tarziu in fisier)
+3. un cadru corupt, atunci nu trimite ack si trecea la urmatorul frame.
+
+Mentiunui:
+
+-> Tratez coruperea octetilor calculand un check sum astfel:
+bitul i din chcek sum este suma modulo 2 a tuturor bitilor de pe
+pozitia i din m.payload.
+
+-> Surse de inspiratie: internet pentru ideea functiei de check sum,
+pseudocodul din Tanenbaum pentru Selective Repeat.
